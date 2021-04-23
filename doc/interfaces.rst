@@ -27,6 +27,7 @@ The available interfaces are:
    interfaces/slcan
    interfaces/socketcan
    interfaces/systec
+   interfaces/tritium_bridge
    interfaces/usb2can
    interfaces/vector
    interfaces/virtual
