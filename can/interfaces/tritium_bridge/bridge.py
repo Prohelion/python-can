@@ -1,10 +1,3 @@
-"""
-The bridge supports bi-directional CAN-Ethernet bridging using both UDP and
-TCPprotocols.
-
-See TRI82.007 for interface documentation.
-"""
-
 import socket
 import struct
 import uuid
@@ -14,7 +7,12 @@ from typing import Dict, List, Optional, Sequence, Tuple, Type, Union
 
 
 class TritiumBridgeBus(BusABC):
-    """"""
+    """
+    The bridge supports bi-directional CAN-Ethernet bridging using both UDP and
+    TCPprotocols.
+
+    See TRI82.007 for interface documentation.
+    """
 
     def __init__(
         self,
