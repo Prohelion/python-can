@@ -14,15 +14,15 @@ class TritiumBridgeBus(BusABC):
     See TRI82.007 for interface documentation.
     """
 
+    UDP_PACKET_STRUCTURE = ">1x7s1x7s1L1B1B8s"
+    MULTICAST_PORT = 4876
+    MULTICAST_IP = "239.255.60.60"
+
     def __init__(
         self,
         bus_number=13,
     ):
         self.BUS_NUMBER = bus_number
-
-        self.UDP_PACKET_STRUCTURE = ">1x7s1x7s1L1B1B8s"
-        self.MULTICAST_PORT = 4876
-        self.MULTICAST_IP = "239.255.60.60"
 
         # create socket
         try:
