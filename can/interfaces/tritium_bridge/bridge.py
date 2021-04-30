@@ -1,5 +1,6 @@
 import socket
 import struct
+import select
 import uuid
 
 from can import BusABC, Message, CanError
@@ -36,6 +37,7 @@ class TritiumBridgeBus(BusABC):
         )
         self._socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, req)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._socket.setblocking(False)
 
         self._socket.bind((self.MULTICAST_IP, self.MULTICAST_PORT))
 
@@ -59,6 +61,41 @@ class TritiumBridgeBus(BusABC):
         )
 
         self._socket.sendto(data, (self.MULTICAST_IP, self.MULTICAST_PORT))
+
+    def recv(self, timeout: Optional[float] = None):
+        """
+        Receive a message from the bridge
+        """
+
+        while (True):
+            ready = select.select([self._socket], [], [], timeout)
+
+            if ready[0]: # data ready to read
+                try:
+                    packet_data = self._socket.recvfrom(30, self.MULTICAST_PORT)
+                except socket.error as exception:
+                    raise can.CanError(f"Failed to read from IP/UDP socket: {exception}")
+                
+                (
+                    bus_identifier,
+                    client_identifier,
+                    identifier,
+                    flags,
+                    data_length,
+                    data
+                ) = struct.unpack(self.UDP_PACKET_STRUCTURE, packet_data[0])
+
+                if bus_identifier[-1] - 0x60 != self.BUS_NUMBER:
+                    continue # wrong bus number
+
+                return Message(
+                    arbitration_id=identifier,
+                    is_extended_id=self._flag_extended_id_set(flags),
+                    dlc=data_length,
+                    data=data
+                )
+            else:
+                return None # timed out
 
     def shutdown(self):
         """Close all sockets and free up any resources.
@@ -101,3 +138,6 @@ class TritiumBridgeBus(BusABC):
             flags += 0x80
 
         return flags
+
+    def _flag_extended_id_set(self, flags):
+        return flags & 0x01
