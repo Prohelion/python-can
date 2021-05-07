@@ -19,6 +19,15 @@ class TritiumBridgeBus(BusABC):
     MULTICAST_PORT = 4876
     MULTICAST_IP = "239.255.60.60"
 
+
+    # bit masks for flags bitfield
+    flag_mask = {
+        "heartbeat":    0b10000000,
+        "settings":     0b01000000,
+        "rtr":          0b00000010,
+        "extended_id":  0b00000001,
+    }
+
     def __init__(
         self,
         bus_number=13,
@@ -55,7 +64,7 @@ class TritiumBridgeBus(BusABC):
             self._bus_identifier(),
             client_identifier,
             msg.arbitration_id,
-            self._flags_byte(extended_id=msg.is_extended_id, rtr=msg.is_remote_frame),
+            self._flags_encode(extended_id=msg.is_extended_id, rtr=msg.is_remote_frame),
             msg.dlc,
             msg.data,
         )
@@ -121,24 +130,29 @@ class TritiumBridgeBus(BusABC):
                 0x60 + self.BUS_NUMBER,
         ])
 
-    def _flags_byte(
+    def _flags_encode(
         self, heartbeat=False, settings=False, rtr=False, extended_id=False
     ):
         flags = 0
 
         if extended_id:
-            flags += 0x01
+            flags += self.flag_mask['extended_id']
 
         if rtr:
-            flags += 0x02
+            flags += self.flag_mask['rtr']
 
         if settings:
-            flags += 0x40
+            flags += self.flag_mask['settings']
 
         if heartbeat:
-            flags += 0x80
+            flags += self.flag_mask['heartbeat']
 
         return flags
 
-    def _flag_extended_id_set(self, flags):
-        return flags & 0x01
+    def _flags_decode(self, flags: int):
+        decoded = {}
+
+        for key, value in self.flag_mask.items():
+            decoded[key] = bool(flags & value)
+        
+        return decoded

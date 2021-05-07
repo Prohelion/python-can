@@ -128,16 +128,26 @@ class tritiumBridgeTestCase(unittest.TestCase):
 
         self.bus.BUS_NUMBER = 13 #return to default
 
-    def test_flags(self):
+    def test_flag_encoding(self):
         # all flags set
-        self.assertEqual(self.bus._flags_byte(True, True, True, True), int('11000011', 2))
+        self.assertEqual(self.bus._flags_encode(True, True, True, True), int('11000011', 2))
         # no flags set
-        self.assertEqual(self.bus._flags_byte(False, False, False, False), int('00000000', 2))
+        self.assertEqual(self.bus._flags_encode(False, False, False, False), int('00000000', 2))
         # default argument values result in no flags set
-        self.assertEqual(self.bus._flags_byte(), int('00000000', 2))
+        self.assertEqual(self.bus._flags_encode(), int('00000000', 2))
         # extended id
-        self.assertEqual(self.bus._flags_byte(extended_id = True), int('00000001', 2))
+        self.assertEqual(self.bus._flags_encode(extended_id = True), int('00000001', 2))
+    
+    def test_flag_decoding(self):
+        # all flags set
+        decoded = self.bus._flags_decode(int('11000011', 2))
+        reference = dict([(key, True) for key in self.bus.flag_mask.keys()])
+        self.assertDictEqual(decoded, reference)
 
+        # all flags clear
+        decoded = self.bus._flags_decode(int('00000000', 2))
+        reference = dict([(key, False) for key in self.bus.flag_mask.keys()])
+        self.assertDictEqual(decoded, reference)
 
 
 if __name__ == "__main__":
