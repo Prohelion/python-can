@@ -21,7 +21,7 @@ class TritiumBridgeBus(BusABC):
 
 
     # bit masks for flags bitfield
-    flag_mask = {
+    _flag_mask = {
         "heartbeat":    0b10000000,
         "settings":     0b01000000,
         "rtr":          0b00000010,
@@ -136,23 +136,18 @@ class TritiumBridgeBus(BusABC):
         flags = 0
 
         if extended_id:
-            flags += self.flag_mask['extended_id']
+            flags += self._flag_mask['extended_id']
 
         if rtr:
-            flags += self.flag_mask['rtr']
+            flags += self._flag_mask['rtr']
 
         if settings:
-            flags += self.flag_mask['settings']
+            flags += self._flag_mask['settings']
 
         if heartbeat:
-            flags += self.flag_mask['heartbeat']
+            flags += self._flag_mask['heartbeat']
 
         return flags
 
     def _flags_decode(self, flags: int):
-        decoded = {}
-
-        for key, value in self.flag_mask.items():
-            decoded[key] = bool(flags & value)
-        
-        return decoded
+        return dict([(key, bool(flags & value)) for key, value in self._flag_mask.items()])

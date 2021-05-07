@@ -141,12 +141,12 @@ class tritiumBridgeTestCase(unittest.TestCase):
     def test_flag_decoding(self):
         # all flags set
         decoded = self.bus._flags_decode(int('11000011', 2))
-        reference = dict([(key, True) for key in self.bus.flag_mask.keys()])
+        reference = dict([(key, True) for key in self.bus._flag_mask.keys()])
         self.assertDictEqual(decoded, reference)
 
         # all flags clear
         decoded = self.bus._flags_decode(int('00000000', 2))
-        reference = dict([(key, False) for key in self.bus.flag_mask.keys()])
+        reference = dict([(key, False) for key in self.bus._flag_mask.keys()])
         self.assertDictEqual(decoded, reference)
 
 
