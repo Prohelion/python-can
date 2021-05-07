@@ -108,8 +108,10 @@ class TritiumBridgeBus(BusABC):
             log.error("could not close IP socket: %s", exception)
 
     def _bus_identifier(self):
-        return bytearray(
-            [
+        if not (0 <= self.BUS_NUMBER <= 15):
+            raise ValueError("Invalid bus number: {}, must be between 0 and 15".format(self.BUS_NUMBER))
+    
+        return bytearray([
                 ord("T"),
                 ord("r"),
                 ord("i"),
@@ -117,8 +119,7 @@ class TritiumBridgeBus(BusABC):
                 ord("i"),
                 ord("u"),
                 0x60 + self.BUS_NUMBER,
-            ]
-        )
+        ])
 
     def _flags_byte(
         self, heartbeat=False, settings=False, rtr=False, extended_id=False

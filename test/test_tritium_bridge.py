@@ -109,6 +109,25 @@ class tritiumBridgeTestCase(unittest.TestCase):
         # data length is correct
         self.assertEqual(data[4], msg.dlc)
 
+    def test_invalid_bus_number(self):
+        msg = can.Message(
+            arbitration_id=0x900,
+            is_extended_id=True,
+            data=[0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF],
+        )
+
+        self.bus.BUS_NUMBER = -1
+
+        with self.assertRaises(ValueError):
+            self.bus.send(msg)
+
+        self.bus.BUS_NUMBER = 16
+
+        with self.assertRaises(ValueError):
+            self.bus.send(msg)
+
+        self.bus.BUS_NUMBER = 13 #return to default
+
     def test_flags(self):
         # all flags set
         self.assertEqual(self.bus._flags_byte(True, True, True, True), int('11000011', 2))
