@@ -1,5 +1,13 @@
 import uuid
 
+# bit masks for flags bitfield
+flag_mask = {
+    "heartbeat":    0b10000000,
+    "settings":     0b01000000,
+    "rtr":          0b00000010,
+    "extended_id":  0b00000001,
+}
+
 def get_client_identifier():
     return bytearray.fromhex(hex(uuid.getnode())[2:])
 
@@ -38,18 +46,18 @@ def encode_flags(heartbeat=False, settings=False, rtr=False, extended_id=False):
     flags = 0
 
     if extended_id:
-        flags += self._flag_mask['extended_id']
+        flags += flag_mask['extended_id']
 
     if rtr:
-        flags += self._flag_mask['rtr']
+        flags += flag_mask['rtr']
 
     if settings:
-        flags += self._flag_mask['settings']
+        flags += flag_mask['settings']
 
     if heartbeat:
-        flags += self._flag_mask['heartbeat']
+        flags += flag_mask['heartbeat']
 
     return flags
 
 def decode_flags(self, flags: int):
-    return dict([(key, bool(flags & value)) for key, value in self._flag_mask.items()])
+    return dict([(key, bool(flags & value)) for key, value in flag_mask.items()])
