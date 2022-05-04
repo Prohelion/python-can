@@ -19,15 +19,6 @@ class TritiumBridgeBus(BusABC):
     MULTICAST_PORT = 4876
     MULTICAST_IP = "239.255.60.60"
 
-
-    # bit masks for flags bitfield
-    _flag_mask = {
-        "heartbeat":    0b10000000,
-        "settings":     0b01000000,
-        "rtr":          0b00000010,
-        "extended_id":  0b00000001,
-    }
-
     def __init__(
         self,
         bus_number=13,

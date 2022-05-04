@@ -70,7 +70,7 @@ class TritiumBridgeBus(BusABC):
         except OSError as exception:
             self._udp_socket = None
             self._udp_is_connected = False
-            raise CanError("Failed to connect via UDP: %s", exception)
+            raise CanError(f"Failed to connect via UDP", exception)
 
     def _create_udp_socket(self, interface_ip, multicast_ip, multicast_port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -82,6 +82,9 @@ class TritiumBridgeBus(BusABC):
         # Add a membership for each network interface
         mreq = struct.pack("4s4s", socket.inet_aton(multicast_ip), socket.inet_aton(interface_ip))
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+        sock.settimeout(0.01)
+        sock.setblocking(False)
 
         sock.bind((interface_ip, multicast_port))
         return sock
